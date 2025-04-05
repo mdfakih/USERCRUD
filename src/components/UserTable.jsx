@@ -14,6 +14,8 @@ const UserTable = () => {
   const [activeTab, setActiveTab] = useState('all');
   const [selectedDate, setSelectedDate] = useState('');
   const [query, setQuery] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [recordsPerPage, setRecordsPerPage] = useState(20);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -24,7 +26,9 @@ const UserTable = () => {
         search: query?.trim() || undefined,
       };
 
-      const userData = await getAllUserData(filters);
+      const skip = (currentPage - 1) * recordsPerPage;
+
+      const userData = await getAllUserData(filters, recordsPerPage, skip);
       let users = userData?.data?.users || [];
       if (selectedDate) {
         const selected = new Date(selectedDate);
@@ -36,7 +40,7 @@ const UserTable = () => {
     };
 
     fetchData();
-  }, [activeTab, selectedDate, query]);
+  }, [activeTab, selectedDate, query, currentPage, recordsPerPage]);
 
   const columns = [
     {
@@ -64,6 +68,16 @@ const UserTable = () => {
       selector: (row) => new Date(row.birthDate).toLocaleDateString('en-GB'),
     },
   ];
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+  const handlePerPageChange = (newPerPage, page) => {
+    setRecordsPerPage(newPerPage);
+    setCurrentPage(page);
+  };
+
+  const totalRows = data?.total || 0;
 
   return (
     <div>
@@ -126,6 +140,13 @@ const UserTable = () => {
           onRowClicked={(row) => navigate(`/details/${row.id}`)}
           pointerOnHover
           highlightOnHover
+          pagination
+          paginationServer
+          paginationTotalRows={totalRows}
+          paginationPerPage={recordsPerPage}
+          onChangePage={handlePageChange}
+          onChangeRowsPerPage={handlePerPageChange}
+          paginationDefaultPage={currentPage}
         />
       </div>
     </div>

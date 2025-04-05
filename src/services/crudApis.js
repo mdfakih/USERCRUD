@@ -2,7 +2,7 @@ import axios from 'axios';
 
 const BASE_URL = 'https://dummyjson.com/users';
 
-export const getAllUserData = async (filters = {}) => {
+export const getAllUserData = async (filters = {}, limit = 20, skip = 0) => {
   let url = BASE_URL;
 
   if (Object.keys(filters).length > 0) {
@@ -16,6 +16,9 @@ export const getAllUserData = async (filters = {}) => {
       queryParams.append('key', 'gender');
       queryParams.append('value', filters.gender);
     }
+
+    queryParams.append('limit', limit);
+    queryParams.append('skip', skip);
 
     url += `?${queryParams.toString()}`;
   }
